@@ -73,7 +73,8 @@ def main() -> None:
     active_players: list[str] = [
         p["name"] for p in players if p["is_active"]
     ]
-    print(f"Active players: {active_players}\n")
+    print(f"Active players: {active_players}")
+    print()
 
     # --- Dict Comprehensions ---
     print("=== Dict Comprehension Examples ===")
@@ -94,7 +95,8 @@ def main() -> None:
     achievement_counts: dict[str, int] = {
         p["name"]: len(p["achievements"]) for p in players if p["is_active"]
     }
-    print(f"Achievement counts: {achievement_counts}\n")
+    print(f"Achievement counts: {achievement_counts}")
+    print()
 
     # --- Set Comprehensions ---
     print("=== Set Comprehension Examples ===")
@@ -107,12 +109,13 @@ def main() -> None:
     unique_achievements: set[str] = {
         ach for p in players for ach in p["achievements"]
     }
-    print(f"Unique achievements: {unique_achievements}\n")
+    print(f"Unique achievements: {unique_achievements}")
 
     active_regions: set[str] = {
         p["region"] for p in players
     }
     print(f"Active regions: {active_regions}\n")
+    print()
 
     # --- Combined Analysis ---
     print("=== Combined Analysis ===")
@@ -134,7 +137,7 @@ def main() -> None:
         top_name: str = top_performers[0]
         top_ach_count: int = achievement_counts.get(top_name, 0)
         print(f"Top performer: {top_name} ({max_score} points, {top_ach_count} achievements)")
-
+    print()
 
 if __name__ == "__main__":
     try:
