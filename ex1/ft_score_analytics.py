@@ -14,8 +14,6 @@ import sys
 
 
 class EmptyScoreboardError(Exception):
-    """Excpetion raised when the scoreboard has no valid scores."""
-
     pass
 
 
@@ -61,12 +59,9 @@ class Scoreboard:
 
 def main() -> None:
     print("=== Player Score Analytics ===")
-    if len(sys.argv) < 2:
-        msg1 = "No scores provided. "
-        msg2 = "Usage python3 ft_score_analytics.py <score1> <score2> ..."
-        print(msg1 + msg2)
-        return
     try:
+        if len(sys.argv) < 2:
+            raise EmptyScoreboardError("No scores provided")
         board = Scoreboard(sys.argv[1:])
         print(f"Scores processed: {board.get_scores()}")
         print(f"Total players: {board.get_num_players()}")
@@ -77,6 +72,7 @@ def main() -> None:
         print(f"Score range: {board.get_range_score()}")
     except EmptyScoreboardError as e:
         print(e)
+        print("Usage python3 ft_score_analytics.py <score1> <score2> ...")
 
 
 if __name__ == "__main__":

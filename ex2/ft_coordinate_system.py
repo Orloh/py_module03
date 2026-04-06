@@ -13,84 +13,59 @@
 import math
 
 
-class Point:
-    """Represents a 3D coordinate poiont in the game world."""
+def get_player_pos() -> tuple[float, float, float]:
+    while True:
+        usr_in = input(
+            "Enter new coordinates as floats in format 'x,y,z': "
+        )
 
-    def __init__(self, x: int, y: int, z: int) -> None:
-        """Initializes the POint with immutable x, y and z coordinates."""
-        self.__coordinate = (x, y, z)
+        parts = usr_in.split(',')
 
-    @classmethod
-    def from_string(cls, coord_str: str) -> "Point | None":
-        """
-        Creates a Point instance from a comma-separated string.
-        Returns None if parsing fails due to invalid formatting.
-        """
-        try:
-            parts = coord_str.split(",")
+        if len(parts) != 3:
+            print("Invalid syntax")
+            continue
 
-            x = int(parts[0])
-            y = int(parts[1])
-            z = int(parts[2])
+        coords = []
+        is_valid = True
 
-            return cls(x, y, z)
-        except ValueError as e:
-            print(f"Error parsing coordinates: {e}")
-            print(f"Error details - Type: {type(e).__name__}, Args:{e.args}")
-            return None
+        for part in parts:
+            cleaned_part = part.strip()
+            try:
+                coords.append(float(cleaned_part))
+            except ValueError:
+                print(f"Error on parameter '{cleaned_part}': could "
+                      f"not convert string to float: '{cleaned_part}'")
+                is_valid = False
+                break
 
-    def get_coordinate(self) -> tuple[int, int, int]:
-        """Access private coordinate tuple."""
-        return self.__coordinate
-
-    def calculate_distance(self, target: "Point | None" = None) -> float:
-        """Calculates 3D distance to another point or the origin (0, 0, 0)."""
-        x1, y1, z1 = self.__coordinate
-        if target is None:
-            x2, y2, z2 = (0, 0, 0)
-        else:
-            x2, y2, z2 = target.get_coordinate()
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-
-    def show_position(self) -> None:
-        """Demonstrates tuple unpacking and prints the current position."""
-        x, y, z = self.__coordinate
-        print(f"Player at x={x}, y={y}, z={z}")
-
-    def __str__(self) -> str:
-        """Returns the string representation of the coordinate tuple."""
-        return f"{self.__coordinate}"
+        if is_valid and len(coords) == 3:
+            return (coords[0], coords[1], coords[2])
 
 
 def main() -> None:
-    """Demo: testing of the Point class"""
     print("=== Game Coordinate System ===")
 
-    p1 = Point(10, 20, 5)
-    origin = Point(0, 0, 0)
+    print("Get a first set of coordinates")
+    pos1 = get_player_pos()
 
-    print(f"Position created {p1}")
-    distance1 = p1.calculate_distance(origin)
-    print(f"Distance between {origin} and {p1}: {distance1:.2f}")
+    print(f"Got a first tuple: {pos1}")
+    print(f"It includes: X={pos1[0]}, Y={pos1[1]}, Z={pos1[2]}")
 
-    coordinates = "3,4,0"
-    print(f'Parsing coordinates: "{coordinates}"')
-    p2 = Point.from_string(coordinates)
-    if p2 is not None:
-        print(f"Parsed position: {p2}")
-        distance2 = p2.calculate_distance(origin)
-        print(f"Distance between {origin} and {p2}: {distance2:.2f}")
+    dist_center = math.sqrt(pos1[0]**2 + pos1[1]**2 + pos1[2]**2)
+    print(f"Distance to center: {round(dist_center, 4)}")
+    print()
 
-    invalid = "abc, def, ghi"
-    print(f'Parsing invalid coordinates: "{invalid}"')
-    p3 = Point.from_string(invalid)
-    if p3 is not None:
-        print(f"This should not be printed: {p3}")
+    print("Get a second set of coordinates")
+    pos2 = get_player_pos()
 
-    print("Unpacking demonstration:")
-    p1.show_position()
-    if p2 is not None:
-        p2.show_position()
+    dist_points = math.sqrt(
+        (pos2[0] - pos1[0])**2 +
+        (pos2[1] - pos1[1])**2 +
+        (pos2[2] - pos1[2])**2
+    )
+    print(
+        f"Distance between the 2 sets of coordinates: {round(dist_points, 4)}"
+    )
 
 
 if __name__ == "__main__":

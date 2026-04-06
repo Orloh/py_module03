@@ -13,193 +13,58 @@
 import sys
 
 
-class Inventory:
-    def __init__(self) -> None:
-        self.__items: dict[str, int] = {}
-        self.__categories: dict[str, dict[str, int]] = {
-            "scarce": {},
-            "moderate": {},
-            "surplus": {}
-        }
-
-    @classmethod
-    def from_args(cls, args: list[str]) -> "Inventory":
-        """Builds an Inventory from command-line strings"""
-        new_inventory = cls()
-
-        for item_string in args:
-            try:
-                item_name, quantity = item_string.split(":")
-                qty = int(quantity)
-                if qty < 0:
-                    print(f"Warning: '{item_string} is invalid. Quantity cannot be negative.")
-                    continue
-                new_inventory.add_to_inventory(item_name, qty)
-            except ValueError:
-                print(f"Warning:'{item_string}' is invalid.")
-                print("Use 'item:qty' format")
-
-        return new_inventory
-
-    @staticmethod
-    def __get_tier(qty: int) -> str:
-        """Determines the category tier based on item quantity."""
-        if qty == 0:
-            return ""
-        elif qty < 3:
-            return "scarce"
-        elif qty < 5:
-            return "moderate"
-        else:
-            return "surplus"
-
-    def __categorise_inventory(self, item_name: str, old_quantity: int):
-        """Calculates tiers and updates the nested category dictionary."""
-        new_quantity = self.get_num_of_item(item_name)
-        new_tier = self.__get_tier(new_quantity)
-        old_tier = self.__get_tier(old_quantity)
-
-        if old_tier and old_tier != new_tier:
-            self.__categories[old_tier].pop(item_name, None)
-        if new_tier:
-            self.__categories[new_tier].update({item_name: new_quantity})
-
-    def get_num_of_item(self, item_name: str) -> int:
-        return self.__items.get(item_name, 0)
-
-    def add_to_inventory(self, item_name: str, quantity: int) -> None:
-        """Adds loot to the items inventory and triggers category update."""
-        old_quantity = self.get_num_of_item(item_name)
-        self.__items[item_name] = old_quantity + quantity
-        self.__categorise_inventory(item_name, old_quantity)
-
-    def get_categories(self) -> dict[str, dict[str, int]]:
-        """Returns the category dictionary."""
-        return self.__categories
-
-    def get_items(self) -> dict[str, int]:
-        """Returns the items dictionary."""
-        return self.__items
-
-    def get_total_items(self) -> int:
-        """Calculates the sum of all item quantities."""
-        total = 0
-        for qty in self.__items.values():
-            total += qty
-        return total
-
-    def get_unique_items(self) -> int:
-        """Returns the number of unique item types"""
-        return len(self.__items.keys())
-
-    def get_most_item(self) -> tuple[str, int]:
-        """Finds the most abundant item."""
-        for tier in ["surplus", "moderate", "scarce"]:
-            tier_dict = self.__categories[tier]
-
-            if not tier_dict:
-                continue
-
-            most_name = ""
-            max_qty = -1
-
-            for name, qty in tier_dict.items():
-                if qty > max_qty:
-                    max_qty = qty
-                    most_name = name
-            return (most_name, max_qty)
-        return ("", 0)
-
-    def get_least_item(self) -> tuple[str, int]:
-        """Finds the least abundant item."""
-        for tier in ["scarce", "moderate", "surplus"]:
-            tier_dict = self.__categories[tier]
-
-            if not tier_dict:
-                continue
-
-            least_name = ""
-            least_qty = None
-
-            for name, qty in tier_dict.items():
-                if least_qty is None or qty < least_qty:
-                    least_qty = qty
-                    least_name = name
-            assert least_qty is not None
-            return (least_name, least_qty)
-        return ("", 0)
-
-    def get_restock(self) -> list[str]:
-        """Returns a list of item names that have exactly 1 quantity."""
-        return [name for name, qty in self.__categories["scarce"].items() if qty == 1]
-
-    def __str__(self) -> str:
-        """String representation of the full inventory."""
-        total = self.get_total_items()
-
-        if total == 0:
-            return "(empty inventory)"
-
-        lines = []
-
-        for name, qty in self.__items.items():
-            percent = (qty / total) * 100
-            unit_label = "unit" if qty == 1 else "units"
-            lines.append(f"{name}: {qty} {unit_label} ({percent:.1f}%)")
-
-        return "\n".join(lines)
-
-    def __getitem__(self, item_name: str) -> str:
-        """Allows inventory['item'] access with formatted output"""
-        qty = self.get_num_of_item(item_name)
-        total = self.get_total_items()
-
-        if qty == 0:
-            return f"(You don't have {item_name})"
-
-        percent = (qty/total) * 100
-        unit_label = "unit" if qty == 1 else "units"
-        return f"{item_name}: {qty} {unit_label} ({percent:.1f}%)"
-
-
 def main() -> None:
     print("=== Inventory System Analysis ===")
-    my_inventory = Inventory.from_args(sys.argv[1:])
 
-    print(f"Total items in inventory: {my_inventory.get_total_items()}")
-    print(f"Unique item types: {my_inventory.get_unique_items()}")
-    print()
+    inventory: dict[str, int] = {}
 
-    print("=== Current Inventory ===")
-    print(my_inventory)
-    print()
+    for arg in sys.argv[1:]:
+        parts = arg.split(':')
 
-    print("=== Inventory Statistics ===")
-    item_name, qty = my_inventory.get_most_item()
-    print(f"Most abundant: {item_name} ({qty} {'unit' if qty == 1 else 'units'})")
-    item_name, qty = my_inventory.get_least_item()
-    print(f"Least abundant: {item_name} ({qty} {'unit' if qty == 1 else 'units'})")
-    print()
+        if len(parts) != 2:
+            print(f"Error invalid parameter '{arg}'")
+            continue
 
-    print("=== Item Categories ===")
-    categories = my_inventory.get_categories()
-    for tier, items in categories.items():
-        if items:
-            print(f"{tier.capitalize()}: {items}")
-    print()
+        item_name = parts[0].strip()
+        quantity_str = parts[1].strip()
 
-    print("=== Management Suggestions ===")
-    print(f"Restock needed: {','.join(my_inventory.get_restock())}")
-    print()
+        if item_name in inventory:
+            print(f"Redundant item '{item_name}' discarding")
+            continue
 
-    print("=== Dictionary Properties Demo ===")
-    items = my_inventory.get_items()
-    keys = items.keys()
-    values = items.values()
-    lookup = "sword"
-    print(f"Dictionary keys: {','.join(keys)}")
-    print(f"Dictionary values: {','.join(f'{v}' for v in values)}")
-    print(f"Sample lookup -'{lookup}' in inventory: {items.get(lookup, 0) != 0}")
+        try:
+            quantity = int(quantity_str)
+            inventory[item_name] = quantity
+        except ValueError as e:
+            print(f"Quantity error for '{item_name}': {e}")
+
+    print(f"Got inventory: {inventory}")
+
+    item_list = list(inventory.keys())
+    print(f"Item list: {item_list}")
+
+    total_quantity = sum(inventory.values())
+    print(f"Total quantity of the {len(item_list)} items: {total_quantity}")
+
+    if total_quantity > 0:
+        for item_name, quantity in inventory.items():
+            percentage = round((quantity / total_quantity) * 100, 1)
+            print(f"Item {item_name} represents {percentage}%")
+
+        most_abundant = item_list[0]
+        least_abundant = item_list[0]
+
+        for item_name in item_list:
+            if inventory[item_name] > inventory[most_abundant]:
+                most_abundant = item_name
+            if inventory[item_name] < inventory[least_abundant]:
+                least_abundant = item_name
+
+        print(f"Item most abundant: {most_abundant} with quantity {inventory[most_abundant]}")
+        print(f"Item least abundant: {least_abundant} with quantity {inventory[least_abundant]}")
+
+    inventory.update({'magic_item': 1})
+    print(f"Updated inventory: {inventory}")
 
 
 if __name__ == "__main__":

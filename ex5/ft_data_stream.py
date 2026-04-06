@@ -11,117 +11,45 @@
 # *************************************************************************** #
 
 
-from typing import Generator
-import time
-import tracemalloc
+import random
+import typing
 
 
-def event_generator(total: int) -> Generator[tuple[str, int, str], None, None]:
-    """
-    Yield game events as (player, level, action)
-    """
-    names = ["alice", "bob", "charlie", "diana"]
-    levels = [5, 8, 3, 10]
-    actions = ["killed monster", "found treasure", "leveled up"]
-
-    for index in range(total):
-        name = names[index % len(names)]
-        level = levels[index % len(levels)]
-        action = actions[index % len(actions)]
-        if action == "leveled up":
-             level += 1
-        yield (name, level, action)
-
-
-def fibonacci_generator() -> Generator[int, None, None]:
-    """
-    Infinite fibonacci sequence...
-    """
-    a, b = 0, 1
+def gen_event(
+    players: list[str],
+    actions: list[str]
+) -> typing.Generator[tuple[str, str], None, None]:
     while True:
-        yield a
-        a, b = b, a + b
+        name = random.choice(players)
+        action = random.choice(actions)
+        yield (name, action)
 
 
-def is_prime(n: int) -> bool:
-    """
-    Determine if an integer is prime
-    """
-    if n <= 1:
-        return False
-    if n <= 3:
-        return True
-    if n % 2 == 0 or n % 3 == 0:
-        return False
-
-    i = 5
-    step = 2
-    while i * i <= n:
-        if n % i == 0:
-            return False
-        i += step
-        step = 6 - step
-    return True
-
-
-def prime_generator(start: int = 2) -> Generator[int, None, None]:
-    """
-    Prime number generator...
-    """
-    num = start
-    while True:
-        if is_prime(num):
-            yield num
-        num += 1
+def consume_event(
+        events: list[tuple[str, str]]
+) -> typing.Generator[tuple[str, str], None, None]:
+    while events:
+        random_index = random.randrange(len(events))
+        yield events.pop(random_index)
 
 
 def main() -> None:
-    print("=== Game Data Stream Processor ===\n")
+    print("=== Game Data Stream Processor ===")
+    players = ['alice', 'bob', 'charlie', 'diana', 'edgar']
+    actions = ['jump', 'run', 'eat', 'move', 'climb', 'release']
+    stream = gen_event(players, actions)
 
-    total_events = 10
-    print(f"Processing {total_events} game events...\n")
-
-    tracemalloc.start()
-    t0 = time.perf_counter()
-
-    high_level_count = 0
-    treasure_count = 0
-    level_up_count = 0
-
-    index = 0
-    to_show = 6
-    for name, level, action in event_generator(total_events):
-        if index <= to_show:
-            print(f"Event {index}: Player {name} (level {level}) {action}")
-
-        if level >= 10:
-            high_level_count += 1
-        if action == "found treasure":
-            treasure_count += 1
-        if action == "leveled up":
-            level_up_count += 1
-        index += 1
-
-    elapsed = time.perf_counter() - t0
-    current, peak = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-
-    print("...")
-    print("=== Stream Analytics ===")
-    print(f"Total events processed: {total_events}")
-    print(f"High-level players (10+): {high_level_count}")
-    print(f"Treasure events: {treasure_count}")
-    print(f"Level-up events: {level_up_count}")
-    print(f"Memory usage: {peak / 1024:.1f}KB")
-    print(f"Processing time: {elapsed:.6f} seconds")
+    for i in range(1000):
+        name, action = next(stream)
+        print(f"Event {i}: Player {name} did action {action}")
     print()
-    print("=== Generator Demonstration ===")
-    f_stream = fibonacci_generator()
-    f_nums = [f"{next(f_stream)}" for _ in range(10)]
-    print(f"Fibonacci sequence (first 10): {', '.join(f_nums)}")
-    p_stream = prime_generator()
-    p_nums = [f"{next(p_stream)}" for _ in range(5)]
-    print(f"Prime numbers (first 5): {', '.join(p_nums)}")
+
+    ten_events = [next(stream) for _ in range(10)]
+    print(f"Built list of 10 events: {ten_events}")
+
+    for consumed in consume_event(ten_events):
+        print(f"Got event from list: {consumed}")
+        print(f"Remains in list: {ten_events}")
 
 
 if __name__ == "__main__":
