@@ -42,28 +42,28 @@ def main() -> None:
         print(f"Player {name}: {achievements}")
     print()
 
-    all_distinct = set.union(*players.values())
+    all_distinct: set[str] = set().union(*players.values())
     print(f"All distinct achievements: {all_distinct}")
     print()
 
-    common_achievements = set.intersection(*players.values())
+    common_achievements: set[str] = set().intersection(*players.values()) # pyright: ignore[reportUnknownVariableType]
     print(f"Common achievements: {common_achievements}")
     print()
 
     for name, achievements in players.items():
-        others_union: set = set()
+        others_union: set[str] = set()
         for other_name, other_achievements in players.items():
             if name != other_name:
-                others_union = set.union(others_union, other_achievements)
+                others_union = set().union(others_union, other_achievements)
 
-        exclusive = set.difference(achievements, others_union)
+        exclusive: set[str] = set().difference(achievements, others_union)
         print(f"Only {name} has: {exclusive}")
 
     print()
 
-    master_set = set(ALL_ACHIEVEMENTS)
+    master_set: set[str] = set(ALL_ACHIEVEMENTS)
     for name, achievements in players.items():
-        missing = set.difference(master_set, achievements)
+        missing: set[str] = set().difference(master_set, achievements)
         print(f"{name} is missing: {missing}")
 
 

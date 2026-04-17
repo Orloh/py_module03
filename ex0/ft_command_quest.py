@@ -14,7 +14,6 @@ import sys
 
 
 def ft_command_quest() -> None:
-    """Interpret and display command-line arguments"""
     print("=== Command Quest ===")
 
     args = sys.argv
