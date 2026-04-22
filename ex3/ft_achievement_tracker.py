@@ -46,7 +46,7 @@ def main() -> None:
     print(f"All distinct achievements: {all_distinct}")
     print()
 
-    common_achievements: set[str] = set.intersection(*players.values()) # pyright: ignore[reportUnknownVariableType]
+    common_achievements: set[str] = set.intersection(*players.values())
     print(f"Common achievements: {common_achievements}")
     print()
 
