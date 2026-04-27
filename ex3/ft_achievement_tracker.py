@@ -23,7 +23,7 @@ ALL_ACHIEVEMENTS = [
 
 
 def gen_player_achievements() -> set[str]:
-    num_achievements = random.randint(7d, 20)
+    num_achievements = random.randint(7, 20)
     chosen = random.sample(ALL_ACHIEVEMENTS, num_achievements)
     return set(chosen)
 
