@@ -40,6 +40,20 @@ def get_player_pos() -> tuple[float, float, float]:
 
         if is_valid and len(coords) == 3:
             return (coords[0], coords[1], coords[2])
+        
+
+def calculte_distance(
+        pos1: tuple[float, float, float],
+        pos2: tuple[float, float, float]
+        ) -> float:
+    x1, y1, z1 = pos1
+    x2, y2, z2 = pos2
+    dist_points = math.sqrt(
+        (x2 - x1)**2 +
+        (y2 - y1)**2 +
+        (z2 - z1)**2
+    )
+    return dist_points
 
 
 def main() -> None:
@@ -49,20 +63,17 @@ def main() -> None:
     pos1 = get_player_pos()
 
     print(f"Got a first tuple: {pos1}")
-    print(f"It includes: X={pos1[0]}, Y={pos1[1]}, Z={pos1[2]}")
+    x, y, z = pos1
+    print(f"It includes: X={x}, Y={y}, Z={z}")
 
-    dist_center = math.sqrt(pos1[0]**2 + pos1[1]**2 + pos1[2]**2)
+    dist_center = calculte_distance(pos1, (0, 0, 0))
     print(f"Distance to center: {round(dist_center, 4)}")
     print()
 
     print("Get a second set of coordinates")
     pos2 = get_player_pos()
 
-    dist_points = math.sqrt(
-        (pos2[0] - pos1[0])**2 +
-        (pos2[1] - pos1[1])**2 +
-        (pos2[2] - pos1[2])**2
-    )
+    dist_points = calculte_distance(pos1, pos2)
     print(
         f"Distance between the 2 sets of coordinates: {round(dist_points, 4)}"
     )
