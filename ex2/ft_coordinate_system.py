@@ -40,7 +40,7 @@ def get_player_pos() -> tuple[float, float, float]:
 
         if is_valid and len(coords) == 3:
             return (coords[0], coords[1], coords[2])
-        
+
 
 def calculte_distance(
         pos1: tuple[float, float, float],
