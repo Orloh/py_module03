@@ -48,7 +48,7 @@ def main() -> None:
     for _, achievements in players:
         all_distinct = all_distinct.union(achievements)
         common_achievements = common_achievements.intersection(achievements)
-    
+
     print(f"All distinct achievements: {all_distinct}")
     print()
 
