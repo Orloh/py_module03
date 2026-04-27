@@ -23,7 +23,7 @@ ALL_ACHIEVEMENTS = [
 
 
 def gen_player_achievements() -> set[str]:
-    num_achievements = random.randint(5, 10)
+    num_achievements = random.randint(7d, 20)
     chosen = random.sample(ALL_ACHIEVEMENTS, num_achievements)
     return set(chosen)
 
@@ -31,28 +31,33 @@ def gen_player_achievements() -> set[str]:
 def main() -> None:
     print("=== Achievement Tracker System ===")
 
-    players = {
-        "Alice": gen_player_achievements(),
-        "Bob": gen_player_achievements(),
-        "Charlie": gen_player_achievements(),
-        "Dylan": gen_player_achievements()
-    }
+    alice: tuple[str, set[str]] = ("Alice", gen_player_achievements())
+    bob: tuple[str, set[str]] = ("Bob", gen_player_achievements())
+    charlie: tuple[str, set[str]] = ("Charlie", gen_player_achievements())
+    diana: tuple[str, set[str]] = ("Diana", gen_player_achievements())
 
-    for name, achievements in players.items():
+    players: list[tuple[str, set[str]]] = [alice, bob, charlie, diana]
+
+    for name, achievements in players:
         print(f"Player {name}: {achievements}")
     print()
 
-    all_distinct: set[str] = set.union(*players.values())
+    all_distinct: set[str] = set()
+    common_achievements: set[str] = set(ALL_ACHIEVEMENTS)
+
+    for _, achievements in players:
+        all_distinct = all_distinct.union(achievements)
+        common_achievements = common_achievements.intersection(achievements)
+    
     print(f"All distinct achievements: {all_distinct}")
     print()
 
-    common_achievements: set[str] = set.intersection(*players.values())
     print(f"Common achievements: {common_achievements}")
     print()
 
-    for name, achievements in players.items():
+    for name, achievements in players:
         others_union: set[str] = set()
-        for other_name, other_achievements in players.items():
+        for other_name, other_achievements in players:
             if name != other_name:
                 others_union = set.union(others_union, other_achievements)
 
@@ -62,7 +67,7 @@ def main() -> None:
     print()
 
     master_set: set[str] = set(ALL_ACHIEVEMENTS)
-    for name, achievements in players.items():
+    for name, achievements in players:
         missing: set[str] = set.difference(master_set, achievements)
         print(f"{name} is missing: {missing}")
         print()
